@@ -1,0 +1,64 @@
+---
+import '../styles/system.css';
+import Masthead from '../components/Masthead.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Pieter Gabriël Steyn — Director of Photography & Colourist',
+  description = 'Pieter Gabriël Steyn is a Director of Photography and Colourist working across fashion, beauty, film and visual culture. Cape Town.',
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://www.pietergsteyn.com');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#fbfbfa" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <Masthead />
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="shell foot">
+      <p class="meta">Pieter Gabriël Steyn — Cape Town</p>
+      <p class="meta">
+        <a href="mailto:pietergsteyn@icloud.com">pietergsteyn@icloud.com</a>
+        <span aria-hidden="true"> · </span>
+        <a href="https://instagram.com/pietergsteyn" rel="me noopener" target="_blank">Instagram</a>
+      </p>
+    </footer>
+
+    <style>
+      .foot {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 2rem;
+        justify-content: space-between;
+        padding-block: 2.5rem 3rem;
+        margin-top: var(--section);
+        border-top: 1px solid var(--rule);
+      }
+
+      .foot a {
+        transition: color var(--dur) var(--ease);
+      }
+
+      .foot a:hover { color: var(--ink); }
+    </style>
+  </body>
+</html>

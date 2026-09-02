@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+import { liveProjects } from '../data/projects';
+
+const clients = [...new Set(liveProjects.map((p) => p.client).filter(Boolean))] as string[];
+---
+
+<Base
+  title="Information — Pieter Gabriël Steyn"
+  description="Pieter Gabriël Steyn, Director of Photography and Colourist. Cape Town. Contact and representation."
+>
+  <div class="shell page">
+    <section class="block">
+      <h2 class="marker">Practice</h2>
+      <div class="prose">
+        <p>
+          Pieter Gabriël Steyn is a Director of Photography and Colourist working across fashion,
+          beauty, film and visual culture.
+        </p>
+        <p>
+          {/* TODO: replace with your own words. This states the two-disciplines
+              position plainly, which is the one thing the page has to do. */}
+          Shooting and grading are treated as a single continuous process rather than two
+          separate jobs — the image is designed at capture and resolved in the grade.
+        </p>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2 class="marker">Disciplines</h2>
+      <ul class="list meta">
+        <li>Director of Photography</li>
+        <li>Colourist</li>
+      </ul>
+    </section>
+
+    {
+      clients.length > 0 && (
+        <section class="block">
+          <h2 class="marker">Published</h2>
+          <ul class="list meta">
+            {clients.map((client) => (
+              <li>{client}</li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="block">
+      <h2 class="marker">Contact</h2>
+      <ul class="list meta">
+        <li><a href="mailto:pietergsteyn@icloud.com">pietergsteyn@icloud.com</a></li>
+        <li>
+          <a href="https://instagram.com/pietergsteyn" rel="me noopener" target="_blank">
+            @pietergsteyn
+          </a>
+        </li>
+        <li>Cape Town, South Africa</li>
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page {
+    margin-top: var(--section);
+    display: grid;
+    gap: 3.5rem;
+    max-width: 46rem;
+  }
+
+  .block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+
+  .prose p + p { margin-top: 1rem; }
+
+  .list {
+    display: grid;
+    gap: 0.35rem;
+    color: var(--ink);
+  }
+
+  .list a {
+    border-bottom: 1px solid var(--ink-faint);
+    transition: border-color var(--dur) var(--ease);
+  }
+
+  .list a:hover { border-color: var(--ink); }
+
+  @media (min-width: 48rem) {
+    .block {
+      grid-template-columns: 10rem minmax(0, 1fr);
+      gap: 2rem;
+      align-items: start;
+    }
+  }
+</style>

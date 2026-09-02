@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectIndex from '../components/ProjectIndex.astro';
+import Archive from '../components/Archive.astro';
+
+/**
+ * The homepage carries no video of any kind (brief §4).
+ * Stills only, lazily loaded, so the page stays quiet and fast.
+ */
+---
+
+<Base>
+  <ProjectIndex />
+  <Archive />
+</Base>

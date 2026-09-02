@@ -1,0 +1,287 @@
+---
+import { Image } from 'astro:assets';
+import { liveProjects, catalogueNumber, shortRoles, yearOf, clientOf } from '../data/projects';
+import { keyStillFor } from '../lib/stills';
+
+/**
+ * The index IS the design (brief §11).
+ *
+ * Four columns of identical type, separated only by position:
+ *   number · title · client / year / category · roles
+ *
+ * Desktop: hovering a row cross-fades that project's still into a panel that
+ * holds its place in the layout — nothing moves, only opacity (§14, §21).
+ * Mobile: no hover exists, so each row carries its own still inline, which
+ * makes the list image-led rather than a shrunken desktop table (§17).
+ */
+
+const rows = liveProjects.map((project, i) => ({
+  project,
+  number: catalogueNumber(i),
+  still: keyStillFor(project.slug, project.keyStill),
+}));
+
+const first = rows[0];
+---
+
+<section class="index-section">
+  <div class="shell head">
+    <h2 class="marker">Selected work</h2>
+    <p class="marker count">{rows.length} projects</p>
+  </div>
+
+  <div class="shell layout">
+    <ol class="index" id="index">
+      {
+        rows.map(({ project, number, still }) => (
+          <li class="row">
+            <a
+              class="link"
+              href={`/projects/${project.slug}`}
+              data-still={project.slug}
+              aria-label={`${project.title}, ${yearOf(project)}`}
+            >
+              <span class="num marker">{number}</span>
+
+              <span class="name title">{project.title}</span>
+
+              <span class="facts meta">
+                {clientOf(project) && <span class="client">{clientOf(project)}</span>}
+                <span class="year">{yearOf(project)}</span>
+                <span class="category">{project.category}</span>
+              </span>
+
+              <span class="roles meta">
+                {shortRoles(project.roles)}
+                {project.colourFeature && <span class="dot" aria-hidden="true" />}
+              </span>
+            </a>
+
+            {/* Mobile-only still: the list is image-led where hover cannot exist. */}
+            {still && (
+              <a class="row-still" href={`/projects/${project.slug}`} tabindex="-1" aria-hidden="true">
+                <Image
+                  src={still}
+                  alt=""
+                  widths={[420, 720, 1000]}
+                  sizes="(max-width: 60rem) 100vw, 1px"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+
+    {/* Desktop-only reveal panel. Every still is rendered once and cross-faded,
+        so nothing loads on hover and nothing reflows. */}
+    <div class="panel" aria-hidden="true">
+      <div class="panel-inner">
+        {
+          rows.map(({ project, still }, i) =>
+            still ? (
+              <figure class="plate" data-plate={project.slug} data-active={i === 0 ? '' : undefined}>
+                <Image
+                  src={still}
+                  alt=""
+                  widths={[600, 900, 1200]}
+                  sizes="(min-width: 60rem) 38vw, 1px"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </figure>
+            ) : null,
+          )
+        }
+      </div>
+      <p class="plate-caption meta" data-caption>{first?.project.title}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .index-section {
+    margin-top: var(--section);
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .layout {
+    display: block;
+  }
+
+  /* ── Rows ───────────────────────────────────────────────────────────────
+     Grid columns give the June Saul table its alignment. Identical type in
+     every column; position alone carries the hierarchy.                    */
+  .row {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .link {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    grid-template-areas:
+      'num  name'
+      '.    facts'
+      '.    roles';
+    row-gap: 0.3rem;
+    align-items: baseline;
+    padding-block: 1rem;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  .num   { grid-area: num; }
+  .name  { grid-area: name; }
+  .facts { grid-area: facts; }
+  .roles { grid-area: roles; }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Separators drawn in CSS so the markup stays clean text. */
+  .facts > * + *::before {
+    content: '/ ';
+    color: var(--ink-faint);
+  }
+
+  .roles {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--ink-muted);
+  }
+
+  /* The colour marker. A 3px dot — the most restrained way to say
+     "the grade is the work here" without a coloured interface (§10). */
+  .dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--ink);
+    display: inline-block;
+  }
+
+  .row-still {
+    display: block;
+    padding-bottom: 1rem;
+  }
+
+  .row-still :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .panel { display: none; }
+
+  /* ── Desktop ────────────────────────────────────────────────────────── */
+  @media (min-width: 60rem) {
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 38vw;
+      gap: 0 var(--section);
+      align-items: start;
+    }
+
+    .link {
+      grid-template-columns: 2.75rem minmax(0, 13rem) minmax(0, 1fr) auto;
+      grid-template-areas: 'num name facts roles';
+      column-gap: 1.25rem;
+      row-gap: 0;
+      padding-block: 0.12rem;
+      /* The index baseline rhythm — one project, one line. */
+      line-height: var(--lh-row);
+    }
+
+    .roles {
+      justify-content: flex-end;
+    }
+
+    /* Hovering one row recedes the others. No underline, no colour, no
+       movement — the list simply focuses. */
+    .index:hover .link { opacity: 0.4; }
+    .index .link:hover,
+    .index .link:focus-visible { opacity: 1; }
+
+    .row-still { display: none; }
+
+    .panel {
+      display: block;
+      position: sticky;
+      top: var(--margin);
+    }
+
+    .panel-inner {
+      position: relative;
+      /* Reserve the space of the tallest plate so nothing reflows on hover. */
+      display: grid;
+    }
+
+    .plate {
+      grid-area: 1 / 1;
+      margin: 0;
+      opacity: 0;
+      transition: opacity var(--dur) var(--ease);
+    }
+
+    .plate[data-active] { opacity: 1; }
+
+    .plate :global(img) {
+      width: 100%;
+      height: auto;
+    }
+
+    .plate-caption {
+      padding-top: 0.7rem;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * The only script on the homepage: swap which plate is visible.
+   * Guarded so the index works exactly as well without JavaScript —
+   * every row is a real link to a real page.
+   */
+  const index = document.getElementById('index');
+  const caption = document.querySelector<HTMLElement>('[data-caption]');
+  const plates = new Map<string, HTMLElement>();
+
+  document.querySelectorAll<HTMLElement>('[data-plate]').forEach((el) => {
+    plates.set(el.dataset.plate!, el);
+  });
+
+  let current = document.querySelector<HTMLElement>('.plate[data-active]');
+
+  function show(slug: string, title: string) {
+    const next = plates.get(slug);
+    if (!next || next === current) return;
+    current?.removeAttribute('data-active');
+    next.setAttribute('data-active', '');
+    current = next;
+    if (caption) caption.textContent = title;
+  }
+
+  index?.addEventListener('pointerover', (event) => {
+    const link = (event.target as Element).closest<HTMLElement>('[data-still]');
+    if (!link) return;
+    show(link.dataset.still!, link.querySelector('.name')?.textContent ?? '');
+  });
+
+  // Keyboard users get the same reveal.
+  index?.addEventListener('focusin', (event) => {
+    const link = (event.target as Element).closest<HTMLElement>('[data-still]');
+    if (!link) return;
+    show(link.dataset.still!, link.querySelector('.name')?.textContent ?? '');
+  });
+</script>

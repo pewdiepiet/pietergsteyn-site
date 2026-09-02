@@ -1,0 +1,85 @@
+---
+/**
+ * The entire navigation of the site. Two links.
+ * The two disciplines sit in the identity itself rather than becoming
+ * two competing sections — see brief §3 and §16.
+ */
+const path = Astro.url.pathname;
+const onIndex = path === '/';
+---
+
+<header class="shell masthead">
+  <div class="identity">
+    {
+      onIndex ? (
+        <h1 class="name title">Pieter Gabriël Steyn</h1>
+      ) : (
+        <a class="name title" href="/">Pieter Gabriël Steyn</a>
+      )
+    }
+    <p class="disciplines meta">Director of Photography <span class="amp">&</span> Colourist</p>
+  </div>
+
+  <nav class="nav marker" aria-label="Primary">
+    <a href="/" aria-current={onIndex ? 'page' : undefined}>Index</a>
+    <a href="/information" aria-current={path.startsWith('/information') ? 'page' : undefined}>
+      Information
+    </a>
+  </nav>
+</header>
+
+<style>
+  .masthead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem 2rem;
+    padding-block: 1.75rem 0;
+  }
+
+  .identity {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .name {
+    display: inline-block;
+    width: fit-content;
+  }
+
+  /* The discipline line is the positioning. Kept to 11px so it reads as a
+     credit line, never as a hero statement. */
+  .disciplines {
+    color: var(--ink);
+  }
+
+  .amp {
+    color: var(--ink-muted);
+    padding-inline: 0.1em;
+  }
+
+  .nav {
+    display: flex;
+    gap: 1.5rem;
+    padding-top: 0.2rem;
+  }
+
+  .nav a {
+    transition: color var(--dur) var(--ease);
+  }
+
+  .nav a:hover,
+  .nav a[aria-current='page'] {
+    color: var(--ink);
+  }
+
+  @media (max-width: 34rem) {
+    .masthead {
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .nav { padding-top: 0; }
+  }
+</style>

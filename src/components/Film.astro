@@ -1,0 +1,137 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { Film } from '../data/projects';
+
+interface Props {
+  film: Film;
+  poster?: ImageMetadata;
+  /** The first film on a page gets priority; the rest stay fully idle. */
+  priority?: boolean;
+}
+
+const { film, poster, priority = false } = Astro.props;
+
+/**
+ * The film is capped by BOTH a share of the measure and a share of the
+ * viewport height, whichever binds first. Without the height cap a portrait
+ * film (Homey at 2122x2750, Schön at 1080x1920) runs far past the screen and
+ * reads as a zoomed-in crop rather than a film you can take in at a glance.
+ */
+const ratio = poster ? poster.width / poster.height : 16 / 9;
+---
+
+<figure class="film" style={`--ar:${ratio.toFixed(4)}`}>
+  <div class="frame" data-film>
+    {
+      poster && (
+        <div class="poster" data-poster>
+          <Image
+            src={poster}
+            alt=""
+            widths={[900, 1400, 1920]}
+            sizes="(min-width: 60rem) 78vw, 100vw"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchpriority={priority ? 'high' : undefined}
+            decoding="async"
+          />
+        </div>
+      )
+    }
+
+    {/* preload="none" — not one byte of video is fetched until the visitor
+        asks for it. This is what keeps a project page light (§15, §18). */}
+    <video
+      src={film.src}
+      preload="none"
+      playsinline
+      controls
+      data-video
+      aria-label={film.label ? `${film.label} — film` : 'Film'}></video>
+
+    <button class="play" type="button" data-play>
+      <span class="play-label marker">Play{film.label ? ` — ${film.label}` : ''}</span>
+    </button>
+  </div>
+</figure>
+
+<style>
+  .film {
+    margin: 0;
+    /* Height cap only on mobile — width is already the binding constraint. */
+    max-width: min(100%, calc(72svh * var(--ar, 1.777)));
+  }
+
+  @media (min-width: 60rem) {
+    .film {
+      /* About half the measure, or whatever keeps it on screen. */
+      max-width: min(52%, calc(76svh * var(--ar, 1.777)));
+    }
+  }
+
+  .frame {
+    position: relative;
+    background: #000;
+    /* No rounded corners, no shadow, no border (§13, §21). */
+  }
+
+  .poster,
+  video {
+    display: block;
+    width: 100%;
+  }
+
+  .poster :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  video {
+    height: auto;
+    /* The video sits under the poster until playback begins. */
+    display: none;
+  }
+
+  .frame[data-playing] video { display: block; }
+  .frame[data-playing] .poster,
+  .frame[data-playing] .play { display: none; }
+
+  /* A single unadorned word. No circle, no triangle, no glass. */
+  .play {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    display: grid;
+    place-items: end start;
+    color: #fff;
+  }
+
+  .play-label {
+    margin: 1rem 1.15rem;
+    color: #fff;
+    mix-blend-mode: difference;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  .play:hover .play-label { opacity: 0.6; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-film]').forEach((frame) => {
+    const video = frame.querySelector<HTMLVideoElement>('[data-video]');
+    const button = frame.querySelector<HTMLButtonElement>('[data-play]');
+    if (!video || !button) return;
+
+    button.addEventListener('click', () => {
+      frame.setAttribute('data-playing', '');
+      // Source is only committed to the network here.
+      video.play().catch(() => {
+        /* Autoplay refused — the native controls remain available. */
+      });
+    });
+  });
+</script>
