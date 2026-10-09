@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "portfolio",
+      "name": "site",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 4321
+      "runtimeArgs": ["--prefix", "/Users/pgsteyn/Documents/Pieter Steyn Website", "run", "preview", "--", "--port", "4323"],
+      "port": 4323
     }
   ]
 }

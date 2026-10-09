@@ -1,15 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
 import ProjectIndex from '../components/ProjectIndex.astro';
-import Archive from '../components/Archive.astro';
 
 /**
- * The homepage carries no video of any kind (brief §4).
- * Stills only, lazily loaded, so the page stays quiet and fast.
+ * The homepage is the index and nothing else.
+ *
+ * No video (brief §4), and no stills sequence below the list — the only
+ * imagery is the plate beside the index, which cross-fades on hover.
+ * On mobile, where there is no hover, each index row carries its own still.
  */
 ---
 
 <Base>
   <ProjectIndex />
-  <Archive />
 </Base>
