@@ -64,7 +64,7 @@ const first = rows[0];
                   src={still}
                   alt=""
                   widths={[420, 720, 1000]}
-                  sizes="(max-width: 60rem) 100vw, 1px"
+                  sizes="(max-width: 75rem) 100vw, 1px"
                   loading="lazy"
                   decoding="async"
                 />
@@ -87,7 +87,7 @@ const first = rows[0];
                   src={still}
                   alt=""
                   widths={[600, 900, 1200]}
-                  sizes="(min-width: 60rem) 38vw, 1px"
+                  sizes="(min-width: 75rem) 34vw, 1px"
                   loading={i === 0 ? 'eager' : 'lazy'}
                   decoding="async"
                 />
@@ -185,16 +185,18 @@ const first = rows[0];
   .panel { display: none; }
 
   /* ── Desktop ────────────────────────────────────────────────────────── */
-  @media (min-width: 60rem) {
+  @media (min-width: 75rem) {
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 38vw;
-      gap: 0 var(--section);
+      grid-template-columns: minmax(0, 1fr) 34vw;
+      gap: 0 4rem;
       align-items: start;
     }
 
     .link {
-      grid-template-columns: 2.75rem minmax(0, 13rem) minmax(0, 1fr) auto;
+      /* Wide enough for the longest title — "Impermanence for Nataal
+         Magazine" — so every project stays on one line. */
+      grid-template-columns: 2.75rem minmax(0, 18rem) minmax(0, 1fr) auto;
       grid-template-areas: 'num name facts roles';
       column-gap: 1.25rem;
       row-gap: 0;
